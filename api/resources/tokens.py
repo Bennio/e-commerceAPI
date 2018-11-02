@@ -1,12 +1,17 @@
 from flask import jsonify, g
 from flask_restful import Resource, reqparse
 
+from api import resources
 from api.models.models import auth
+
+ns = resources.namespace('tokens', description='Operations related to tokens')
+
 
 parser = reqparse.RequestParser()
 
 
 # authenticate via username/pass or valid api-token
+@ns.route('/')
 class Tokens(Resource):
     """
         This class is responsible for generating new tokens for sellers.

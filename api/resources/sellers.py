@@ -4,8 +4,11 @@ from flask import g
 from flask_restful import Resource, marshal_with, fields, reqparse
 from sqlalchemy.exc import SQLAlchemyError
 
+from api import resources
 from api.models.models import Seller, User, auth
 from api.database import db
+
+ns = resources.namespace('sellers', description='Operations related to sellers')
 
 output_fields = {
     'id': fields.Integer,
@@ -22,10 +25,32 @@ logger = logging.getLogger(__name__)
 parser = reqparse.RequestParser()
 
 
+def create_seller(args):
+    try:
+        user = User(role_type_id=1, username=args['username'],
+                    password_hash=User.hash_password(args['password']))
+        db.session.add(user)
+        db.session.commit()
+        seller = Seller(user_id=user.id, name=args['name'],
+                        contact_name=args['contact_name'],
+                        contact_number=args['contact_number'],
+                        email_id=args['email_id'])
+        db.session.add(seller)
+        db.session.commit()
+        return {"id": seller.id, "isSuccessful": True}, 202
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.exception("Error while creating seller")
+        return {"error": str(e), "isSuccessful": False}, 401
+    finally:
+        db.session.close()
+
+@ns.route('/')
 class Sellers(Resource):
     """
     A view of Seller with CRUD operations.
     """
+
     @auth.login_required
     @marshal_with(output_fields)
     def get(self):
@@ -66,27 +91,7 @@ class Sellers(Resource):
         if id:
             return self.update_seller(id, args)
         else:
-            return self.create_seller(args)
-
-    def create_seller(self, args):
-        try:
-            user = User(role_type_id=1, username=args['username'],
-                        password_hash=User.hash_password(args['password']))
-            db.session.add(user)
-            db.session.commit()
-            seller = Seller(user_id=user.id, name=args['name'],
-                            contact_name=args['contact_name'],
-                            contact_number=args['contact_number'],
-                            email_id=args['email_id'])
-            db.session.add(seller)
-            db.session.commit()
-            return {"id": seller.id, "isSuccessful": True}, 202
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            logger.exception("Error while creating seller")
-            return {"error": str(e), "isSuccessful": False}, 401
-        finally:
-             db.session.close()
+            return create_seller(args)
 
     @auth.login_required
     def update_seller(self, id, args):
@@ -98,7 +103,7 @@ class Sellers(Resource):
             # If a seller is trying to update another seller
             if id != g.seller.id and not g.is_admin:
                 return {"error": "you don't have permission to update this seller"
-                        , "isSuccessful": False}, 401
+                           , "isSuccessful": False}, 401
             for key, value in args.items():
                 if value:
                     setattr(seller, key, value)
@@ -110,4 +115,4 @@ class Sellers(Resource):
             logger.exception("Error while updating seller")
             return {"error": str(e), "isSuccessful": False}, 401
         finally:
-             db.session.close()
+            db.session.close()

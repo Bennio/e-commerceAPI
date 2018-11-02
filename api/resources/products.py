@@ -4,9 +4,12 @@ from flask import g
 from flask_restful import Resource, marshal_with, fields, reqparse, request
 from sqlalchemy.exc import SQLAlchemyError
 
+from api import resources
 from api.models.models import db, auth, Product
 
 logger = logging.getLogger(__name__)
+
+ns = resources.namespace('products', description='Operations related to products')
 
 product_fields = {
     'id': fields.Integer,
@@ -31,11 +34,13 @@ parser = reqparse.RequestParser()
 
 
 # pagination
+@ns.route('/')
 class Products(Resource):
     """
     A view of Product with CRUD operations.
     """
 
+    @resources.expect(product_fields, validate=True)
     @auth.login_required
     @marshal_with(product_fields, envelope='data')
     def get(self):
@@ -79,6 +84,10 @@ class Products(Resource):
                     seller_id=seller_id).all()
         return products
 
+
+
+
+    @resources.response(204, 'Products have been successfully updated.')
     @auth.login_required
     def update_product(self, id, args):
         """
@@ -107,6 +116,11 @@ class Products(Resource):
 
         return {"id": id, "isSuccessful": True}, 202
 
+    @ns.route('/<id>/product/<int:product_id>')
+    @resources.param('product_id', 'Product Item ID')
+    @resources.param('id', 'Products ID')
+    @resources.response(404, 'Item not found.')
+    @resources.response(204, 'Product items successfully deleted.')
     @auth.login_required
     def delete(self):
         """

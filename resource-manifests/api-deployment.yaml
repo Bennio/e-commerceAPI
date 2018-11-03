@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: e-commerceAPI
+spec:
+  replicas: 2
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: e-commerceAPI
+    spec:
+      containers:
+        - image: rinormaloku/e-commerceAPI
+          imagePullPolicy: Always
+          name: e-commerceAPI
+          ports:
+            - containerPort: 5000

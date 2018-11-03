@@ -9,7 +9,7 @@ from api.resources.tokens import Tokens
 import logging
 
 app = Flask(__name__)
-api = Api(app)
+api = Api()
 app.config.from_object('config.BaseConfig')
 mail = Mail()
 api.database.init(app)

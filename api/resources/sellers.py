@@ -45,6 +45,7 @@ def create_seller(args):
     finally:
         db.session.close()
 
+
 @ns.route('/')
 class Sellers(Resource):
     """

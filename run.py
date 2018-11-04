@@ -1,18 +1,17 @@
 import os
+
 from flask_restful import Api
 from flask import Flask, Blueprint
 from flask_mail import Mail
 from api.database import db
-from api.resources.sellers import Sellers
-from api.resources.products import Products
-from api.resources.tokens import Tokens
 import logging
+
 
 app = Flask(__name__)
 api = Api()
-app.config.from_object('config.BaseConfig')
+app.config.from_object('api.config.Config')
 mail = Mail()
-api.database.init(app)
+# api.database.init(app)
 
 # config.configure_logging_relative('logging.ini')
 
@@ -49,10 +48,9 @@ def main():
     app.run(debug=app.config['DEBUG'])
 
 
-api.add_resource(Sellers, '/sellers')
-api.add_resource(Products, '/products')
-api.add_resource(Tokens, '/token')
-
+# api.add_resource(Sellers, '/sellers')
+# api.add_resource(Products, '/products')
+# api.add_resource(Tokens, '/token')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)

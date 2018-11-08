@@ -25,7 +25,7 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('APP_MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('APP_MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = 'from@example.com'
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=postgres, pw=postgres,
+    DATABASE_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=postgres, pw=postgres,
                                                                                     url='jdbc:postgresql://localhost:5432/postgres',
                                                                                     db=postgres)
 
@@ -34,7 +34,7 @@ class TestConfig(Config):
     DEBUG = True
     TESTING = True
     WTF_CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=postgres, pw=postgres,
+    TEST_DATABASE_URI = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=postgres, pw=postgres,
                                                                                     url='jdbc:postgresql"//localhost:5432/postgres',
                                                                                     db=postgres)
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URI')

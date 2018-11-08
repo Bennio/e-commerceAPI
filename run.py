@@ -47,10 +47,5 @@ def main():
         app.config['FLASK_SERVER_NAME']))
     app.run(debug=app.config['DEBUG'])
 
-
-# api.add_resource(Sellers, '/sellers')
-# api.add_resource(Products, '/products')
-# api.add_resource(Tokens, '/token')
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
